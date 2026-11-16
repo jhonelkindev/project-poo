@@ -24,16 +24,16 @@ public abstract class Entity {
         return new Rectangle((int) x, (int) (y + height - footHeight), width, footHeight);
     }
 
-    public double getX() {
-        return x;
+    public int getX() {
+        return (int) x;
     }
 
     public void setX(double x) {
         this.x = x;
     }
 
-    public double getY() {
-        return y;
+    public int getY() {
+        return (int) y;
     }
 
     public void setY(double y) {
