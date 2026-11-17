@@ -4,7 +4,6 @@ import model.Agent;
 import view.GamePanel;
 
 public class GameLoopThread extends Thread {
-    private static final int FPS = 60;
     private boolean running;
     private Agent agent;
     private KeyboardController keyboard;
@@ -42,7 +41,7 @@ public class GameLoopThread extends Thread {
         if (keyboard.isLeft()) dx -= 1;
         if (keyboard.isRight()) dx += 1;
 
-        agent.move(dx, dy, gamePanel.getWidth(), gamePanel.getHeight());
+        agent.move(dx, dy, gamePanel.getFloorArea());
         agent.update();
     }
 

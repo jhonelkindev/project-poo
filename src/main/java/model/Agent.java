@@ -1,5 +1,7 @@
 package model;
 
+import java.awt.*;
+
 public class Agent extends Entity {
     public static final int MAX_LIVES = 3;
 
@@ -19,14 +21,14 @@ public class Agent extends Entity {
 
     }
 
-    public void move(int dx, int dy, int maxWidth, int masHeight) {
+    public void move(int dx, int dy, Polygon floorArea) {
         double nextX = x + dx * speed;
-        double nextY = y + dy * speed;
-
-        if (nextX >= 0 && nextX <= maxWidth - width) {
+        if (floorArea.contains(nextX + width / 2.0, y + height)) {
             this.x = nextX;
         }
-        if (nextY >= 0 && nextY <= masHeight - height) {
+
+        double nextY = y + dy * speed;
+        if (floorArea.contains(x + width / 2.0, nextY + height)) {
             this.y = nextY;
         }
     }
