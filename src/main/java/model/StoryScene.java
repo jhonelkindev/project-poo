@@ -42,7 +42,7 @@ public class StoryScene {
     /**
      *
      * @param index posicion de la linea en la barra de informacion
-     * @return  el texto de esa linea 
+     * @return  el texto de esa linea
      */
     public String getLine(int index){
         return lines[index];
