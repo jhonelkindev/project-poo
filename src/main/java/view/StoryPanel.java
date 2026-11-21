@@ -20,9 +20,17 @@ public class StoryPanel extends JPanel {
      */
     private Image imagenFondo;
     /**
-     * Barrita de informacion
+     * Texto que va en la barrita de informacion
      */
     private JTextArea textArea;
+    /**
+     * Panel donde aparece la pista de saltar
+     */
+    private JPanel bottomBar;
+    /**
+     * El label para la pista
+     */
+    private JLabel hintLabel;
 
     /**
      * Crea el panel y le mete la imagen y la barra de informacion
@@ -31,7 +39,11 @@ public class StoryPanel extends JPanel {
         setPreferredSize(new Dimension(1280, 720));
         setLayout(new BorderLayout());
         setFocusable(true); // nuevo set, sirve para que el panel reciba teclas, por ejemplo de adelantar
-        textArea = new JTextArea(); //
+        textArea = new JTextArea(); // crear el objeto textarea
+        hintLabel = new JLabel("Enter o Espacio para continuar");
+        bottomBar = new JPanel(new BorderLayout());
+        hintLabel.setForeground(new Color(186, 188, 34));
+        bottomBar.setBackground(new Color(27, 24, 24));
         textArea.setEditable(false); //no se pueden editar las palabras escritas en el panel
         textArea.setFocusable(false);
         textArea.setLineWrap(true); //si el texto es largo, cambia de linea en lugar de salirse del cuadrito
@@ -41,7 +53,13 @@ public class StoryPanel extends JPanel {
         textArea.setBackground(new Color(15, 18, 22));
         textArea.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30)); // crea el borde respecto a la cajita
         textArea.setPreferredSize(new Dimension(1280, 170));
-        add(textArea, BorderLayout.SOUTH);
+        hintLabel.setFont(new Font("Monospaced", Font.PLAIN, 16));
+        hintLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        bottomBar.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        bottomBar.add(textArea, BorderLayout.CENTER);
+        bottomBar.add(hintLabel, BorderLayout.SOUTH);
+        add(bottomBar, BorderLayout.SOUTH);
+
 
     }
 
