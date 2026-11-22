@@ -3,6 +3,8 @@ package view;
 import controller.GameLoopThread;
 import controller.KeyboardController;
 import model.Agent;
+import model.Zone;
+import model.Zone1BoilerRoom;
 
 import javax.swing.*;
 
@@ -15,17 +17,19 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
-        Agent agent = new Agent(600, 350);
-        KeyboardController Keyboard = new KeyboardController();
-        GamePanel gamePanel = new GamePanel(agent);
+        Agent agent = new Agent(620, 460);
+        Zone initialZone = new Zone1BoilerRoom();
 
-        gamePanel.addKeyListener(Keyboard);
+        KeyboardController keyboard = new KeyboardController();
+        GamePanel gamePanel = new GamePanel(agent, initialZone);
+
+        gamePanel.addKeyListener(keyboard);
         setContentPane(gamePanel);
 
         pack();
         setLocationRelativeTo(null);
 
-        GameLoopThread gameLoop = new GameLoopThread(agent, Keyboard, gamePanel);
+        GameLoopThread gameLoop = new GameLoopThread(agent, keyboard, gamePanel);
         gameLoop.start();
     }
 

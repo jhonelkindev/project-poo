@@ -1,6 +1,9 @@
 package controller;
 
 import model.Agent;
+import model.Zone;
+import model.Zone1BoilerRoom;
+import model.Zone2EngineRoom;
 import view.GamePanel;
 
 public class GameLoopThread extends Thread {
@@ -41,8 +44,18 @@ public class GameLoopThread extends Thread {
         if (keyboard.isLeft()) dx -= 1;
         if (keyboard.isRight()) dx += 1;
 
-        agent.move(dx, dy, gamePanel.getFloorArea());
-        agent.update();
+        Zone currentZone = gamePanel.getCurrentZone();
+        if (currentZone != null) {
+            agent.move(dx, dy, currentZone.getFloorArea());
+            agent.update();
+            currentZone.update(agent);
+
+
+            if (currentZone instanceof Zone1BoilerRoom && keyboard.isNextLevel()) {
+                gamePanel.setCurrentZone(new Zone2EngineRoom());
+                agent.setPosition(170, 420);
+            }
+        }
     }
 
     public void stopLoop() {
