@@ -4,9 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Representa al jugador
- * Gestiona su posición, movimiento, vidas y puntaje
- * y el cambio de sprite según la dirección en la que se mueve.
+ * Representa al jugador.
+ * Gestiona su posicion, movimiento, vidas y puntaje
+ * y el cambio de sprite segun la direccion en la que se mueve.
  */
 public class Agent extends Entity {
     private String playerName;
@@ -23,37 +23,51 @@ public class Agent extends Entity {
     private Image currentSprite;
 
     /**
-     * Crea al Agente en la posición inicial con 3 vidas y carga sus sprites.
+     * Crea al agente en la posicion inicial con 3 vidas y carga sus sprites.
      *
-     * @param x Coordenada horizontal inicial en píxeles.
-     * @param y Coordenada vertical inicial en píxeles.
+     * @param x Coordenada horizontal inicial en pixeles.
+     * @param y Coordenada vertical inicial en pixeles.
      */
     public Agent(double x, double y) {
         super(x, y, 48, 64, 1.4);
+
         this.playerName = "Agente";
         this.lives = 3;
         this.score = 0;
 
-        this.idleSprite = new ImageIcon(getClass().getResource("/frames/Personaje Principal/Personaje_Principal.png")).getImage();
-        this.walkDown = new ImageIcon(getClass().getResource("/Sprites/Personaje/preview_abajo.gif")).getImage();
-        this.walkUp = new ImageIcon(getClass().getResource("/Sprites/Personaje/preview_arriba.gif")).getImage();
-        this.walkLeft = new ImageIcon(getClass().getResource("/Sprites/Personaje/preview_izquierda.gif")).getImage();
-        this.walkRight = new ImageIcon(getClass().getResource("/Sprites/Personaje/preview_derecha.gif")).getImage();
-        this.walkUpLeft = new ImageIcon(getClass().getResource("/Sprites/Personaje/preview_arriba_izquierda.gif")).getImage();
-        this.walkUpRight = new ImageIcon(getClass().getResource("/Sprites/Personaje/preview_arriba_derecha_nuevo.gif")).getImage();
+        this.idleSprite = new ImageIcon(getClass().getResource(
+                "/frames/Personaje Principal/Personaje_Principal.png")).getImage();
+
+        this.walkDown = new ImageIcon(getClass().getResource(
+                "/Sprites/Personaje/preview_abajo.gif")).getImage();
+
+        this.walkUp = new ImageIcon(getClass().getResource(
+                "/Sprites/Personaje/preview_arriba.gif")).getImage();
+
+        this.walkLeft = new ImageIcon(getClass().getResource(
+                "/Sprites/Personaje/preview_izquierda.gif")).getImage();
+
+        this.walkRight = new ImageIcon(getClass().getResource(
+                "/Sprites/Personaje/preview_derecha.gif")).getImage();
+
+        this.walkUpLeft = new ImageIcon(getClass().getResource(
+                "/Sprites/Personaje/preview_arriba_izquierda.gif")).getImage();
+
+        this.walkUpRight = new ImageIcon(getClass().getResource(
+                "/Sprites/Personaje/preview_arriba_derecha_nuevo.gif")).getImage();
 
         this.currentSprite = this.idleSprite;
     }
 
     /**
-     * Desplaza al Agente dentro de los límites del piso y actualiza su imagen.
+     * Desplaza al agente dentro de los limites del piso y actualiza su imagen.
      * Si no se presiona ninguna tecla, muestra el sprite quieto.
      *
-     * @param dx        Dirección horizontal.
-     * @param dy        Dirección vertical.
-     * @param floorArea Polígono que delimita el piso.
+     * @param dx Direccion horizontal.
+     * @param dy Direccion vertical.
+     * @param zone Zona actual donde se mueve el jugador.
      */
-    public void move(int dx, int dy, Polygon floorArea) {
+    public void move(int dx, int dy, Zone zone) {
         if (dx == 0 && dy == 0) {
             currentSprite = idleSprite;
             return;
@@ -74,26 +88,29 @@ public class Agent extends Entity {
         }
 
         double nextX = x + dx * speed;
-        if (floorArea.contains(nextX + width / 2.0, y + height)) {
+
+        if (zone.canMoveTo(getBoundsAt(nextX, y))) {
             this.x = nextX;
         }
 
+        // Usa la X que el jugador pudo alcanzar al comprobar el paso horizontal.
         double nextY = y + dy * speed;
-        if (floorArea.contains(x + width / 2.0, nextY + height)) {
+
+        if (zone.canMoveTo(getBoundsAt(x, nextY))) {
             this.y = nextY;
         }
     }
 
     @Override
     public void update() {
-        // Reservado para futuras actualizaciones del jugador
+        // Reservado para futuras actualizaciones del jugador.
     }
 
     /**
      * Ubica al personaje directamente en una nueva coordenada del escenario.
      *
-     * @param x Nueva posición horizontal en píxeles.
-     * @param y Nueva posición vertical en píxeles.
+     * @param x Nueva posicion horizontal en pixeles.
+     * @param y Nueva posicion vertical en pixeles.
      */
     public void setPosition(double x, double y) {
         this.x = x;
