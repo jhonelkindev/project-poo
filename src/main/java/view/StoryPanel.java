@@ -106,12 +106,15 @@ public class StoryPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        g.setColor((new Color(25, 19, 19)));
+        g.fillRect(0, 0, getWidth(), getHeight());
         if (imagenFondo != null) {
-            g.drawImage(imagenFondo, 0, 0, getWidth(), getHeight(), this);
+            int espacio = getHeight() - bottomBar.getHeight();
+            int sobrante = espacio - imagenFondo.getHeight(this);
+            int y = sobrante / 2;
+            g.drawImage(imagenFondo, 0, y, this);
 
-        } else {
-            g.setColor((new Color(48, 48, 57)));
-            g.fillRect(0, 0, getWidth(), getHeight());
         }
+
     }
 }

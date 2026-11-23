@@ -16,22 +16,22 @@ public class StoryData {
      */
     public static StoryScene[] getIntro() {
         return new StoryScene[]{
-                new StoryScene("/images/intro_1.png", new String[]{
+                new StoryScene("/frames/paneles_historia/01_planta.png", new String[]{
                         "Narrador: Planta nuclear Helix, reactor 7. Lider en energia nuclear, 0 incidentes desde su construccion."
                 }),
-                new StoryScene("/images/intro_2.png", new String[]{
+                new StoryScene("/frames/paneles_historia/02_doctor_uranio.png", new String[]{
                         "Doctor Uranio: Este sera el siguiente paso de la revolucion humana... y me llamaban loco."
                 }),
-                new StoryScene("/images/intro_3.png", new String[]{
+                new StoryScene("/frames/paneles_historia/03_explosion.png", new String[]{
                         "Narrador: Un experimento prohibido, mas alla de la comprension y la etica humana, desestabilizo el nucleo y provoco una explosion.",
                         "Narrador: Sin embargo, nadie en la ciudad se entero."
                 }),
-                new StoryScene("/images/intro_4.png", new String[]{
+                new StoryScene("/frames/paneles_historia/04_encubrimiento.png", new String[]{
                         "Ejecutivo: Nadie puede enterarse de este pequeno inconveniente. Llama al Agente.",
                         "Asistente: Pero la radiacio-",
                         "Ejecutivo: Haga su trabajo."
                 }),
-                new StoryScene("/images/intro_5.png", new String[]{
+                new StoryScene("/frames/paneles_historia/05_llamada_del_agente.png", new String[]{
                         "Agente, tenemos una fuga menor en la planta. Nada grave. Entra, repara y sales. Le pagaremos el triple."
                 })
         };
@@ -70,7 +70,7 @@ public class StoryData {
      */
     public static StoryScene[] getZone3() {
         return new StoryScene[]{
-                new StoryScene("/images/panel_7.png", new String[]{
+                new StoryScene("/frames/paneles_historia/07_revelacion_doctor.png", new String[]{
                         "Doctor Uranio: En serio crees que les importas? Hace 5 anos yo era su mejor hombre y mirame ahora, me tratan peor que a la escoria."
                 }),
                 new StoryScene("/images/zona_3.png", new String[]{
@@ -86,20 +86,20 @@ public class StoryData {
      */
     public static StoryScene[] getEnding() {
         return new StoryScene[]{
-                new StoryScene("/images/final_8.png", new String[]{
+                new StoryScene("/frames/paneles_historia/08_derrota_doctor.png", new String[]{
                         "..."
                 }),
-                new StoryScene("/images/final_9.png", new String[]{
+                new StoryScene("/frames/paneles_historia/09_falsa_recompensa.png", new String[]{
                         "Excelente trabajo, Agente. La corporacion se encargara de recompensarlo como corresponde.",
                         "Por ahora entreguenos todo lo que encontro en el reactor, hay que mandarlo al laboratorio para examenes. Simple burocracia."
                 }),
-                new StoryScene("/images/final_10.png", new String[]{
+                new StoryScene("/frames/paneles_historia/10_entrega_pruebas.png", new String[]{
                         "Agente: Sobre el pago, queria saber si-"
                 }),
-                new StoryScene("/images/final_11.png", new String[]{
+                new StoryScene("/frames/paneles_historia/11_traicion_corporacion.png", new String[]{
                         "*BANG*"
                 }),
-                new StoryScene("/images/final_12.png", new String[]{
+                new StoryScene("/frames/paneles_historia/12_televisor.png", new String[]{
                         "Noticiero: Accidente en el reactor 7 de la planta nuclear Helix, sin victimas mortales."
                 })
         };
@@ -112,7 +112,7 @@ public class StoryData {
      */
     public static StoryScene[] getGameOver() {
         return new StoryScene[]{
-                new StoryScene("/images/gameover.png", new String[]{
+                new StoryScene("/frames/paneles_historia/Game_Over_Explosion.png", new String[]{
                         "ALERTA NACIONAL: Accidente nuclear, busque refugio. Esto no es un simulacro."
                 })
         };
