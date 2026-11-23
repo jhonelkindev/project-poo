@@ -11,6 +11,7 @@ public abstract class Zone {
     protected String zoneName;
     protected Polygon floorArea;
     protected List<GameObject> gameObjects;
+    private List<Decoration> decorations = new ArrayList<>();
 
     /**
      * Construye una zona jugable con el nombre y el area
@@ -73,6 +74,26 @@ public abstract class Zone {
      */
     public String getZoneName() {
         return zoneName;
+    }
+
+    /**
+     * Agrega una decoracion al mapa de la zona.
+     *
+     * @param decoration Decoracion que se ubica en el mapa.
+     */
+    protected void addDecoration(Decoration decoration) {
+        decorations.add(decoration);
+    }
+
+    /**
+     * Dibuja las decoraciones de la zona en el orden en que se agregaron.
+     *
+     * @param graphics Contexto grafico utilizado para dibujar.
+     */
+    protected void drawDecorations(Graphics graphics) {
+        for (Decoration decoration : decorations) {
+            decoration.draw(graphics);
+        }
     }
 
 }
