@@ -31,6 +31,13 @@ public class Zone3CoreRoom extends Zone {
         blueDispenserImg = new ImageIcon(getClass().getResource("/frames/Nivel-3/dispensadores/dispensador_azul_lleno.png")).getImage();
         yellowDispenserImg = new ImageIcon(getClass().getResource("/frames/Nivel-3/dispensadores/dispensador_amarillo_lleno.png")).getImage();
         coreImg = new ImageIcon(getClass().getResource("/frames/Nivel-3/Nucleo/nucleo_vacio.png")).getImage();
+        Polygon coreBase = new Polygon(new int[]{30, 85, 152, 97}, new int[]{135, 170, 138, 103}, 4);
+        Polygon dispenserBase = new Polygon(new int[]{4, 38, 61, 27}, new int[]{70, 86, 72, 56}, 2);
+        addDecoration(new Decoration(coreImg, core, coreBase));
+        addDecoration(new Decoration(redDispenserImg, redDispenser, dispenserBase));
+        addDecoration(new Decoration(blueDispenserImg, blueDispenser, dispenserBase));
+        addDecoration(new Decoration(yellowDispenserImg, yellowDispenser, dispenserBase));
+        sortDecorationsByDepth();
     }
 
     @Override
@@ -41,16 +48,18 @@ public class Zone3CoreRoom extends Zone {
     @Override
     public void draw(Graphics graphics, Agent agent) {
         graphics.drawImage(background, 0, 0, 1280, 720, null);
-        graphics.drawImage(coreImg, core.x, core.y, core.width, core.height, null);
-        graphics.drawImage(redDispenserImg, redDispenser.x, redDispenser.y, redDispenser.width, redDispenser.height, null);
-        graphics.drawImage(blueDispenserImg, blueDispenser.x, blueDispenser.y, blueDispenser.width, blueDispenser.height, null);
-        graphics.drawImage(yellowDispenserImg, yellowDispenser.x, yellowDispenser.y, yellowDispenser.width, yellowDispenser.height, null);
-
+        drawDecorations(graphics);
 
     }
 
     @Override
     public boolean isCompleted() {
         return false;
+    }
+
+    @Override
+    public void drawScene(Graphics graphics, Agent agent, Runnable drawAgent) {
+        graphics.drawImage(background, 0, 0, 1280, 720, null);
+        drawDecorationsWithAgent(graphics, agent, drawAgent);
     }
 }
