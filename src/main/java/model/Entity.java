@@ -19,13 +19,30 @@ public abstract class Entity {
 
     public abstract void update();
 
+
+    /**
+     * Obtiene el area que ocupan los pies
+     *
+     * @return Rectangulo de los pies en la posicion actual.
+     */
     public Rectangle getBounds() {
+      return getBoundsAt(x,y);
+    }
+
+    public Rectangle getBoundsAt(double nextX, double nextY) {
         int footHeight = height / 3;
-        return new Rectangle((int) x, (int) (y + height - footHeight), width, footHeight);
+
+        return new Rectangle(
+                (int) nextX,
+                (int)(nextY + height - footHeight),
+                width,
+                footHeight
+        );
     }
 
     public int getX() {
         return (int) x;
+
     }
 
     public void setX(double x) {

@@ -46,7 +46,7 @@ public class GameLoopThread extends Thread {
 
         Zone currentZone = gamePanel.getCurrentZone();
         if (currentZone != null) {
-            agent.move(dx, dy, currentZone.getFloorArea());
+            agent.move(dx, dy, currentZone);
             agent.update();
             currentZone.update(agent);
 

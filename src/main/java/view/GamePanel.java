@@ -29,16 +29,26 @@ public class GamePanel extends JPanel {
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
+    protected void paintComponent(Graphics graphics) {
+        super.paintComponent(graphics);
 
-        if (currentZone != null) {
-            currentZone.draw(g, agent);
+        Zone zone = currentZone;
 
+        if (zone == null) {
+            drawAgent(graphics);
+        } else {
+            zone.drawScene(graphics, agent, () -> drawAgent(graphics));
         }
+    }
 
+    /**
+     * Dibuja el sprite actual del jugador.
+     *
+     * @param graphics Contexto grafico de Swing.
+     */
+    private void drawAgent(Graphics graphics) {
         if (agent.getCurrentSprite() != null) {
-            g.drawImage(
+            graphics.drawImage(
                     agent.getCurrentSprite(),
                     agent.getX(),
                     agent.getY(),
@@ -47,8 +57,9 @@ public class GamePanel extends JPanel {
                     this
             );
         } else {
-            g.setColor(new Color(0, 200, 150));
-            g.fillRect(agent.getX(), agent.getY(), agent.getWidth(), agent.getHeight());
+            graphics.setColor(new Color(0, 200, 150));
+            graphics.fillRect(agent.getX(), agent.getY(),
+                    agent.getWidth(), agent.getHeight());
         }
     }
 }
