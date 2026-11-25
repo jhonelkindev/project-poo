@@ -96,6 +96,15 @@ public class Decoration {
     }
 
     /**
+     * Cambia la imagen de la pieza cuando cambia de estado.
+     *
+     * @param image Nueva imagen de la decoracion.
+     */
+    public void setImage(Image image) {
+        this.image = image;
+    }
+
+    /**
      * Dibuja la imagen de la pieza en su posicion dentro del mapa.
      *
      * @param graphics Contexto grafico de Swing.

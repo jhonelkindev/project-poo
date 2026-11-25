@@ -60,11 +60,11 @@ public class Agent extends Entity {
     }
 
     /**
-     * Desplaza al agente dentro de los limites del piso y actualiza su imagen.
+     * Desplaza al agente en perspectiva isomeytrica dentro de los limites del piso y actualiza su imagen.
      * Si no se presiona ninguna tecla, muestra el sprite quieto.
      *
-     * @param dx Direccion horizontal.
-     * @param dy Direccion vertical.
+     * @param dx   Direccion horizontal.
+     * @param dy   Direccion vertical.
      * @param zone Zona actual donde se mueve el jugador.
      */
     public void move(int dx, int dy, Zone zone) {
@@ -73,31 +73,45 @@ public class Agent extends Entity {
             return;
         }
 
-        if (dy < 0 && dx < 0) {
-            currentSprite = walkUpLeft;
-        } else if (dy < 0 && dx > 0) {
-            currentSprite = walkUpRight;
-        } else if (dy < 0) {
-            currentSprite = walkUp;
-        } else if (dy > 0) {
-            currentSprite = walkDown;
-        } else if (dx < 0) {
-            currentSprite = walkLeft;
-        } else if (dx > 0) {
-            currentSprite = walkRight;
+        double moveX = (dx - dy) * 0.85;
+        double moveY = (dx + dy) * 0.45;
+
+        if (moveX == 0) {
+            moveX = dx * 1.0;
         }
 
-        double nextX = x + dx * speed;
+        updateDirectionSprite(moveX, moveY);
 
+        double nextX = x + moveX * speed;
         if (zone.canMoveTo(getBoundsAt(nextX, y))) {
             this.x = nextX;
         }
 
-        // Usa la X que el jugador pudo alcanzar al comprobar el paso horizontal.
-        double nextY = y + dy * speed;
-
+        double nextY = y + moveY * speed;
         if (zone.canMoveTo(getBoundsAt(x, nextY))) {
             this.y = nextY;
+        }
+    }
+
+    /**
+     * Selecciona el sprite correspondiente segun el movimiento del jugador
+     *
+     * @param isoX desplazamiento horizontal del jugador
+     * @param isoY desplazamiento vertical del jugador
+     */
+    private void updateDirectionSprite(double isoX, double isoY) {
+        if (isoY < -0.1 && isoX < -0.1) {
+            currentSprite = walkUpLeft;
+        } else if (isoY < -0.1 && isoX > 0.1) {
+            currentSprite = walkUpRight;
+        } else if (isoY < -0.1) {
+            currentSprite = walkUp;
+        } else if (isoY > 0.1 && Math.abs(isoX) <= 0.1) {
+            currentSprite = walkDown;
+        } else if (isoX < -0.1) {
+            currentSprite = walkLeft;
+        } else if (isoX > 0.1) {
+            currentSprite = walkRight;
         }
     }
 

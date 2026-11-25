@@ -1,5 +1,6 @@
 package model;
 
+import javax.swing.ImageIcon;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -77,6 +78,16 @@ public abstract class Zone {
      */
     public String getZoneName() {
         return zoneName;
+    }
+
+    /**
+     * Carga una imagen de la carpeta de recursos.
+     *
+     * @param path Ruta de la imagen dentro de resources.
+     * @return Imagen cargada.
+     */
+    protected Image loadImage(String path) {
+        return new ImageIcon(getClass().getResource(path)).getImage();
     }
 
     /**

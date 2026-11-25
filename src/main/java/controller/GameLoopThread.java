@@ -53,7 +53,7 @@ public class GameLoopThread extends Thread {
 
             if (currentZone instanceof Zone1BoilerRoom && keyboard.isNextLevel()) {
                 gamePanel.setCurrentZone(new Zone2EngineRoom());
-                agent.setPosition(170, 420);
+                agent.setPosition(200, 370);
             }
         }
     }
