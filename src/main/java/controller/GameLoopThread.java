@@ -47,6 +47,19 @@ public class GameLoopThread extends Thread {
         Zone currentZone = gamePanel.getCurrentZone();
         if (currentZone != null) {
             agent.move(dx, dy, currentZone);
+
+            if (keyboard.consumePickUp()) {
+                currentZone.pickUp(agent);
+            }
+
+            if (keyboard.consumeDrop()) {
+                currentZone.drop(agent);
+            }
+
+            if (keyboard.isAction()) {
+                currentZone.action(agent);
+            }
+
             agent.update();
             currentZone.update(agent);
 

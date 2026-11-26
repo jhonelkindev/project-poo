@@ -1,6 +1,6 @@
 package model;
 
-import javax.swing.ImageIcon;
+import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -42,7 +42,7 @@ public abstract class Zone {
      * Dibuja el piso, las maquinas y los objetos de la zona.
      *
      * @param graphics Contexto grafico de Swing.
-     * @param agent Jugador activo.
+     * @param agent    Jugador activo.
      */
     public abstract void draw(Graphics graphics, Agent agent);
 
@@ -125,8 +125,8 @@ public abstract class Zone {
     /**
      * Dibuja al jugador entre las piezas ordenadas del fondo hacia el frente.
      *
-     * @param graphics Contexto grafico de Swing.
-     * @param agent Jugador activo.
+     * @param graphics  Contexto grafico de Swing.
+     * @param agent     Jugador activo.
      * @param drawAgent Accion que dibuja al jugador.
      */
     protected void drawDecorationsWithAgent(Graphics graphics, Agent agent, Runnable drawAgent) {
@@ -182,12 +182,38 @@ public abstract class Zone {
     /**
      * Dibuja la zona y el jugador en el orden del nivel.
      *
-     * @param graphics Contexto grafico de Swing.
-     * @param agent Jugador activo.
+     * @param graphics  Contexto grafico de Swing.
+     * @param agent     Jugador activo.
      * @param drawAgent Accion que dibuja al jugador.
      */
     public void drawScene(Graphics graphics, Agent agent, Runnable drawAgent) {
         draw(graphics, agent);
         drawAgent.run();
+    }
+
+
+    /**
+     * Se ejecuta cuando el jugador presiona F para recoger un objeto.
+     * Cada zona decide que se puede recoger.
+     *
+     * @param agent Jugador activo.
+     */
+    public void pickUp(Agent agent) {
+    }
+
+    /**
+     * Se ejecuta cuando el jugador presiona Q para soltar un objeto.
+     *
+     * @param agent Jugador activo.
+     */
+    public void drop(Agent agent) {
+    }
+
+    /**
+     * Se ejecuta en cada fotograma mientras el jugador mantiene presionada la E.
+     *
+     * @param agent Jugador activo.
+     */
+    public void action(Agent agent) {
     }
 }

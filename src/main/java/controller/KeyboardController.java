@@ -9,6 +9,11 @@ public class KeyboardController extends KeyAdapter {
     private boolean left;
     private boolean right;
     private boolean nextLevel;
+    private boolean action;
+    private boolean pickUp;
+    private boolean drop;
+    private boolean pickUpHeld;
+    private boolean dropHeld;
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -20,6 +25,20 @@ public class KeyboardController extends KeyAdapter {
 
         if (code == KeyEvent.VK_N) {
             nextLevel = true;
+        }
+
+        if (code == KeyEvent.VK_E) {
+            action = true;
+        }
+
+        if (code == KeyEvent.VK_F && !pickUpHeld) {
+            pickUp = true;
+            pickUpHeld = true;
+        }
+
+        if (code == KeyEvent.VK_Q && !dropHeld) {
+            drop = true;
+            dropHeld = true;
         }
     }
 
@@ -33,6 +52,18 @@ public class KeyboardController extends KeyAdapter {
 
         if (code == KeyEvent.VK_N) {
             nextLevel = false;
+        }
+
+        if (code == KeyEvent.VK_E) {
+            action = false;
+        }
+
+        if (code == KeyEvent.VK_F) {
+            pickUpHeld = false;
+        }
+
+        if (code == KeyEvent.VK_Q) {
+            dropHeld = false;
         }
     }
 
@@ -55,5 +86,21 @@ public class KeyboardController extends KeyAdapter {
 
     public boolean isNextLevel() {
         return nextLevel;
+    }
+
+    public boolean isAction() {
+        return action;
+    }
+
+    public boolean consumePickUp() {
+        boolean pressed = pickUp;
+        pickUp = false;
+        return pressed;
+    }
+
+    public boolean consumeDrop() {
+        boolean pressed = drop;
+        drop = false;
+        return pressed;
     }
 }

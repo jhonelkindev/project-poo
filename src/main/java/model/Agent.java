@@ -22,6 +22,9 @@ public class Agent extends Entity {
     private Image walkUpRight;
     private Image currentSprite;
 
+    // Pieza que el jugador lleva en la mano (solo una a la vez)
+    private Part carriedPart;
+
     /**
      * Crea al agente en la posicion inicial con 3 vidas y carga sus sprites.
      *
@@ -35,26 +38,13 @@ public class Agent extends Entity {
         this.lives = 3;
         this.score = 0;
 
-        this.idleSprite = new ImageIcon(getClass().getResource(
-                "/frames/Personaje Principal/Personaje_Principal.png")).getImage();
-
-        this.walkDown = new ImageIcon(getClass().getResource(
-                "/Sprites/Personaje/preview_abajo.gif")).getImage();
-
-        this.walkUp = new ImageIcon(getClass().getResource(
-                "/Sprites/Personaje/preview_arriba.gif")).getImage();
-
-        this.walkLeft = new ImageIcon(getClass().getResource(
-                "/Sprites/Personaje/preview_izquierda.gif")).getImage();
-
-        this.walkRight = new ImageIcon(getClass().getResource(
-                "/Sprites/Personaje/preview_derecha.gif")).getImage();
-
-        this.walkUpLeft = new ImageIcon(getClass().getResource(
-                "/Sprites/Personaje/preview_arriba_izquierda.gif")).getImage();
-
-        this.walkUpRight = new ImageIcon(getClass().getResource(
-                "/Sprites/Personaje/preview_arriba_derecha_nuevo.gif")).getImage();
+        this.idleSprite = new ImageIcon(getClass().getResource("/frames/Personaje Principal/Personaje_Principal.png")).getImage();
+        this.walkDown = new ImageIcon(getClass().getResource("/Sprites/Personaje/preview_abajo.gif")).getImage();
+        this.walkUp = new ImageIcon(getClass().getResource("/Sprites/Personaje/preview_arriba.gif")).getImage();
+        this.walkLeft = new ImageIcon(getClass().getResource("/Sprites/Personaje/preview_izquierda.gif")).getImage();
+        this.walkRight = new ImageIcon(getClass().getResource("/Sprites/Personaje/preview_derecha.gif")).getImage();
+        this.walkUpLeft = new ImageIcon(getClass().getResource("/Sprites/Personaje/preview_arriba_izquierda.gif")).getImage();
+        this.walkUpRight = new ImageIcon(getClass().getResource("/Sprites/Personaje/preview_arriba_derecha_nuevo.gif")).getImage();
 
         this.currentSprite = this.idleSprite;
     }
@@ -82,12 +72,13 @@ public class Agent extends Entity {
 
         updateDirectionSprite(moveX, moveY);
 
-        double nextX = x + moveX * speed;
+        double currentSpeed = getCurrentSpeed();
+        double nextX = x + moveX * currentSpeed;
         if (zone.canMoveTo(getBoundsAt(nextX, y))) {
             this.x = nextX;
         }
 
-        double nextY = y + moveY * speed;
+        double nextY = y + moveY * currentSpeed;
         if (zone.canMoveTo(getBoundsAt(x, nextY))) {
             this.y = nextY;
         }
@@ -118,6 +109,56 @@ public class Agent extends Entity {
     @Override
     public void update() {
         // Reservado para futuras actualizaciones del jugador.
+    }
+
+    /**
+     * Calcula la velocidad: si lleva una pieza camina mas lento.
+     *
+     * @return Velocidad actual del jugador.
+     */
+    private double getCurrentSpeed() {
+        if (carriedPart != null) {
+            return speed * 0.75;
+        }
+        return speed;
+    }
+
+    /**
+     * Toma una pieza en la mano.
+     *
+     * @param part Pieza recogida.
+     */
+    public void carryPart(Part part) {
+        carriedPart = part;
+    }
+
+    /**
+     * Suelta la pieza que lleva en la mano.
+     *
+     * @return La pieza soltada, o null si no lleva ninguna.
+     */
+    public Part dropPart() {
+        Part part = carriedPart;
+        carriedPart = null;
+        return part;
+    }
+
+    /**
+     * Indica si el jugador lleva una pieza.
+     *
+     * @return true si tiene una pieza en la mano.
+     */
+    public boolean hasPart() {
+        return carriedPart != null;
+    }
+
+    /**
+     * Obtiene la pieza que lleva el jugador.
+     *
+     * @return La pieza en la mano, o null si no lleva ninguna.
+     */
+    public Part getCarriedPart() {
+        return carriedPart;
     }
 
     /**

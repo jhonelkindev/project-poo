@@ -1,6 +1,9 @@
 package model;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Representa el segundo nivel del juego, la sala de maquinas.
@@ -48,6 +51,16 @@ public class Zone2EngineRoom extends Zone {
     private Decoration table;
     private boolean[] calibratedPanels = new boolean[electricalPanels.length];
 
+    private List<Part> parts = new ArrayList<>();
+    private int installedNuts;
+    private int installedCables;
+
+    // Acciones que se hacen manteniendo E: limpiar (1.5 s) e instalar (1 s)
+    private long holdStart;
+    private int holdDuration;
+    private boolean holding;
+    private boolean cleaning;
+
     /**
      * Construye la sala de maquinas y ubica sus maquinas y decoraciones.
      */
@@ -62,10 +75,279 @@ public class Zone2EngineRoom extends Zone {
         placeMachines();
         placeTransformersAndDucts();
         sortDecorationsByDepth();
+        placeParts();
     }
 
     /**
-     * Carga todas las imagenes del nivel 2 en un solo lugar.
+     * Ubica las 6 tuercas y los 4 cables en el piso de la sala.
+     */
+    private void placeParts() {
+        // Tuercas
+        parts.add(new Part(240, 380, Part.NUT));
+        parts.add(new Part(440, 380, Part.NUT));
+        parts.add(new Part(720, 340, Part.NUT));
+        parts.add(new Part(960, 300, Part.NUT));
+        parts.add(new Part(280, 460, Part.NUT));
+        parts.add(new Part(920, 460, Part.NUT));
+
+        // Cables
+        parts.add(new Part(160, 420, Part.CABLE));
+        parts.add(new Part(720, 420, Part.CABLE));
+        parts.add(new Part(400, 500, Part.CABLE));
+        parts.add(new Part(840, 500, Part.CABLE));
+    }
+
+    /**
+     * Recoge con F una pieza cercana, solo si el jugador tiene las manos libres.
+     *
+     * @param agent Jugador activo.
+     */
+    @Override
+    public void pickUp(Agent agent) {
+        if (!agent.hasPart()) {
+            for (Part part : parts) {
+                if (!part.isCollected() && isNear(agent, part.getBounds())) {
+                    part.setCollected(true);
+                    part.applyEffect(agent);
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Suelta con Q la pieza recogida
+     *
+     * @param agent Jugador activo.
+     */
+    @Override
+    public void drop(Agent agent) {
+        Part part = agent.dropPart();
+
+        if (part != null) {
+            part.placeAt(agent.getX() + 8, agent.getY() + 35);
+        }
+    }
+
+    /**
+     * Accion de la tecla E: limpia la pieza en la mesa o la entrega en el generador.
+     *
+     * @param agent Jugador activo.
+     */
+    @Override
+    public void action(Agent agent) {
+        Part part = agent.getCarriedPart();
+
+        // En la mesa de limpieza: hay que mantener E durante 1.5 segundos
+        if (part != null && !part.isClean() && isNear(agent, cleaningTable)) {
+            cleaning = true;
+
+            if (holdE(1500)) {
+                part.cleanPart();
+            }
+        }
+
+        // En el generador: solo se aceptan piezas limpias, manteniendo E durante 1 segundo
+        if (part != null && part.isClean() && isNear(agent, centralGenerator)) {
+            if (holdE(1000)) {
+                deliverPart(agent);
+            }
+        }
+    }
+
+    /**
+     * Cuenta el tiempo que el jugador lleva manteniendo la E.
+     *
+     * @param millis Tiempo que se debe mantener la E, en milisegundos.
+     * @return true cuando ya se mantuvo la E el tiempo necesario.
+     */
+    private boolean holdE(int millis) {
+        holding = true;
+        holdDuration = millis;
+
+        if (holdStart == 0) {
+            holdStart = System.currentTimeMillis();
+        }
+
+        return System.currentTimeMillis() - holdStart >= millis;
+    }
+
+    /**
+     * Comprueba si el jugador esta cerca de un area del mapa.
+     *
+     * @param agent Jugador activo.
+     * @param area  Area de la pieza o de la maquina.
+     * @return true si el jugador esta cerca.
+     */
+    private boolean isNear(Agent agent, Rectangle area) {
+        Rectangle playerArea = new Rectangle(agent.getX() - 20, agent.getY() - 20,
+                agent.getWidth() + 40, agent.getHeight() + 40);
+        return playerArea.intersects(area);
+    }
+
+    /**
+     * Instala en el generador la pieza limpia que lleva el jugador.
+     *
+     * @param agent Jugador activo.
+     */
+    private void deliverPart(Agent agent) {
+        Part part = agent.dropPart();
+
+        if (part.getType().equals(Part.NUT)) {
+            installedNuts++;
+        } else {
+            installedCables++;
+        }
+
+        if (installedNuts == 6 && installedCables == 4) {
+            showGeneratorOn();
+        } else {
+            showGeneratorAssembly();
+        }
+    }
+
+    /**
+     * Calcula cuanto lleva la accion de mantener E, de 0.0 (nada) a 1.0 (completa).
+     *
+     * @return Progreso de la accion.
+     */
+    private double getHoldProgress() {
+        if (holdStart == 0) {
+            return 0;
+        }
+
+        double progress = (double) (System.currentTimeMillis() - holdStart) / holdDuration;
+        if (progress > 1) {
+            progress = 1;
+        }
+        return progress;
+    }
+
+    /**
+     * Dibuja una barra de progreso encima de una maquina.
+     *
+     * @param graphics Contexto grafico de Swing.
+     * @param area     Area de la maquina.
+     */
+    private void drawProgressBar(Graphics graphics, Rectangle area) {
+        int barX = area.x + area.width / 2 - 50;
+        int barY = area.y - 8;
+
+        graphics.setColor(Color.DARK_GRAY);
+        graphics.fillRect(barX, barY, 100, 8);
+        graphics.setColor(Color.GREEN);
+        graphics.fillRect(barX, barY, (int) (100 * getHoldProgress()), 8);
+    }
+
+    /**
+     * Dibuja las piezas que siguen en el piso.
+     *
+     * @param graphics Contexto grafico de Swing.
+     */
+    private void drawParts(Graphics graphics) {
+        for (Part part : parts) {
+            if (!part.isCollected()) {
+                part.draw(graphics);
+            }
+        }
+    }
+
+    /**
+     * Muestra cuantas piezas tiene el generador y cuantas carga el jugador.
+     *
+     * @param graphics Contexto grafico de Swing.
+     * @param agent    Jugador activo.
+     */
+    private void drawObjectives(Graphics graphics, Agent agent) {
+        String carrying = "nada";
+        Part part = agent.getCarriedPart();
+
+        if (part != null) {
+            if (part.isClean()) {
+                carrying = part.getType() + " (pieza limpia)";
+            } else {
+                carrying = part.getType() + " (pieza sucia)";
+            }
+        }
+
+        String text = "Tuercas: " + installedNuts + "/6"
+                + " | Cables: " + installedCables + "/4"
+                + " | Llevas: " + carrying;
+
+        graphics.setColor(Color.WHITE);
+        graphics.setFont(new Font("Arial", Font.BOLD, 16));
+        graphics.drawString(text, 640, 40);
+    }
+
+    /**
+     * Escribe encima de la mesa y del generador su nombre y lo que se puede hacer.
+     *
+     * @param graphics Contexto grafico de Swing.
+     * @param agent    Jugador activo.
+     */
+    private void drawMachineLabels(Graphics graphics, Agent agent) {
+        Part part = agent.getCarriedPart();
+
+        // Mesa de limpieza
+        String tableHint = null;
+        if (isNear(agent, cleaningTable)) {
+            if (part == null) {
+                tableHint = "Trae una pieza sucia";
+            } else if (part.isClean()) {
+                tableHint = "Esta pieza ya esta limpia";
+            } else {
+                tableHint = "Manten E para limpiar";
+            }
+        }
+        drawLabel(graphics, "MESA DE LIMPIEZA", tableHint, cleaningTable);
+
+        // Generador central
+        String generatorHint = null;
+        if (isNear(agent, centralGenerator)) {
+            if (part == null) {
+                generatorHint = "Trae una pieza limpia";
+            } else if (part.isClean()) {
+                generatorHint = "Manten E para instalar";
+            } else {
+                generatorHint = "Primero limpia la pieza";
+            }
+        }
+        drawLabel(graphics, "GENERADOR", generatorHint, centralGenerator);
+
+        // Barra de progreso encima de la maquina que se esta usando
+        if (holdStart != 0) {
+            if (isNear(agent, cleaningTable)) {
+                drawProgressBar(graphics, cleaningTable);
+            } else {
+                drawProgressBar(graphics, centralGenerator);
+            }
+        }
+    }
+
+    /**
+     * Dibuja el nombre de una maquina centrado encima de ella y, si hay, una indicacion.
+     *
+     * @param graphics Contexto grafico de Swing.
+     * @param title    Nombre de la maquina.
+     * @param hint     Indicacion para el jugador, o null si no hay.
+     * @param area     Area de la maquina.
+     */
+    private void drawLabel(Graphics graphics, String title, String hint, Rectangle area) {
+        graphics.setFont(new Font("Arial", Font.BOLD, 13));
+        FontMetrics metrics = graphics.getFontMetrics();
+        int centerX = area.x + area.width / 2;
+
+        graphics.setColor(Color.WHITE);
+        graphics.drawString(title, centerX - metrics.stringWidth(title) / 2, area.y - 30);
+
+        if (hint != null) {
+            graphics.setColor(Color.YELLOW);
+            graphics.drawString(hint, centerX - metrics.stringWidth(hint) / 2, area.y - 14);
+        }
+    }
+
+    /**
+     * Carga todas las imagenes del nivel 2.
      */
     private void loadImages() {
         backgroundImg = loadImage("/mapas_niveles/nivel2_fondo.png");
@@ -181,15 +463,30 @@ public class Zone2EngineRoom extends Zone {
         return floorArea.contains(feet);
     }
 
+    /**
+     * Si el jugador solto la E o se alejo de la maquina, el progreso vuelve a cero.
+     *
+     * @param agent Jugador activo.
+     */
     @Override
     public void update(Agent agent) {
+        if (!holding) {
+            holdStart = 0;
+        }
+        setTableCleaning(cleaning);
+
+        holding = false;
+        cleaning = false;
     }
 
     @Override
     public void draw(Graphics graphics, Agent agent) {
         drawBackgroundAndWalls(graphics);
+        drawParts(graphics);
         drawDecorations(graphics);
         drawZoneName(graphics);
+        drawObjectives(graphics, agent);
+        drawMachineLabels(graphics, agent);
     }
 
     /**
@@ -202,8 +499,11 @@ public class Zone2EngineRoom extends Zone {
     @Override
     public void drawScene(Graphics graphics, Agent agent, Runnable drawAgent) {
         drawBackgroundAndWalls(graphics);
+        drawParts(graphics);
         drawDecorationsWithAgent(graphics, agent, drawAgent);
         drawZoneName(graphics);
+        drawObjectives(graphics, agent);
+        drawMachineLabels(graphics, agent);
     }
 
     /**
