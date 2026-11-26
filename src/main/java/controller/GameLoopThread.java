@@ -47,13 +47,26 @@ public class GameLoopThread extends Thread {
         Zone currentZone = gamePanel.getCurrentZone();
         if (currentZone != null) {
             agent.move(dx, dy, currentZone);
+
+            if (keyboard.consumePickUp()) {
+                currentZone.pickUp(agent);
+            }
+
+            if (keyboard.consumeDrop()) {
+                currentZone.drop(agent);
+            }
+
+            if (keyboard.isAction()) {
+                currentZone.action(agent);
+            }
+
             agent.update();
             currentZone.update(agent);
 
 
             if (currentZone instanceof Zone1BoilerRoom && keyboard.isNextLevel()) {
                 gamePanel.setCurrentZone(new Zone2EngineRoom());
-                agent.setPosition(170, 420);
+                agent.setPosition(200, 370);
             }
         }
     }
