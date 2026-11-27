@@ -23,6 +23,7 @@ public class Zone3CoreRoom extends Zone {
     private static final String ITEMS = "/frames/power-rites/";
     //colores de las barras
     private static final String[] ROD_COLORS = {"Roja", "Azul", "Amarilla"};
+    private static final String[] ROD_FILES = {"roja", " azul", "amarilla"};
     private Rectangle core = new Rectangle(550, 350, 180, 180);
     /**
      * Dispensadores de donde se agarran las barras
@@ -73,10 +74,7 @@ public class Zone3CoreRoom extends Zone {
     private Decoration[] valveDecorations = new Decoration[valves.length];
     private boolean[] emptyDispensers = new boolean[dispensers.length];
     private boolean[] openValves = new boolean[valves.length];
-    /**
-     * Barras que carga el jugador
-     */
-    private boolean[] carriedRods = new boolean[dispensers.length];
+
     /**
      * Orden
      */
@@ -97,6 +95,7 @@ public class Zone3CoreRoom extends Zone {
     private Rectangle holdArea;
     private boolean holding;
     private boolean wasHolding;
+    private int carriedRod = -1;
 
 
     /**
@@ -133,6 +132,7 @@ public class Zone3CoreRoom extends Zone {
         dispenserEmptyImg = loadImage(FRAMES + "dispensadores/dispensador_vacio.png");
         valveClosedImg = loadImage(FRAMES + "/valvula_refrigeracion/valvula_refrigeracion_cerrada.png");
         valveOpenImg = loadImage(FRAMES + "/valvula_refrigeracion/valvula_refrigeracion_abierta.png");
+        coreAprovedImg = loadImage(FRAMES + "Nucleo/nucleo_aprobado.png");
 
         rodImgs = new Image[]{
                 loadImage(ITEMS + "item_barra_roja.png"),
@@ -218,9 +218,9 @@ public class Zone3CoreRoom extends Zone {
             }
             return;
         }
-        if (isNear(agent, core) && countCarriedRods() > 0) {
+        if (isNear(agent, core) && carriedRod != -1) {
             holding = true;
-            message = "Esa barra no es la correcta";
+            message = "Esa barra no es la correcta, devuelvela a su dispensador con Q";
             return;
         }
 
@@ -234,10 +234,15 @@ public class Zone3CoreRoom extends Zone {
             }
         }
         //en un valvula cerrada e 2s para abrirla
-        for (int i = 0; i < valves.length; i++) {
-            if (!openValves[i] && isNear(agent, valves[i])) {
+        for (int i = 0; i < dispensers.length; i++) {
+            if (!emptyDispensers[i] && isNear(agent, dispensers[i])) {
+                if (carriedRod != -1) {
+                    holding = true;
+                    message = "Solo puedes llevar una barras a la vez";
+                    return;
+                }
                 if (holdE(2000, valves[i])) {
-                    openValve(i);
+                    extractRod(i);
                 }
                 return;
             }
@@ -254,9 +259,9 @@ public class Zone3CoreRoom extends Zone {
 
     private void extractRod(int index) {
         emptyDispensers[index] = true;
-        carriedRods[index] = true;
         dispenserDecorations[index].setImage(dispenserEmptyImg);
         holdStart = 0;
+        carriedRod = index;
         message = "";
 
     }
@@ -266,11 +271,12 @@ public class Zone3CoreRoom extends Zone {
      *
      */
     private void finishInsertion() {
-        carriedRods[rodOrder.get(insertedRods)] = false;
         insertedRods++;
-        coreDecoration.setImage(coreImgs[insertedRods]);
+        carriedRod = -1;
+        coreDecoration.setImage(loadCoreImage());
         locking = false;
         message = "";
+        checkCompleted();
     }
 
     /**
@@ -283,7 +289,17 @@ public class Zone3CoreRoom extends Zone {
         openedValves++;
         valveDecorations[index].setImage(valveOpenImg);
         holdStart = 0;
-        isCompleted();
+        checkCompleted();
+    }
+
+    /**
+     * si ya se completo el objetivo del nivel
+     */
+    private void checkCompleted() {
+        if (isCompleted()) {
+            coreDecoration.setImage(coreAprovedImg);
+            message = "";
+        }
     }
 
     /**
@@ -292,20 +308,40 @@ public class Zone3CoreRoom extends Zone {
      * @return true si lleva la barra correcta
      */
     private boolean hasRodOfTurn() {
-        return insertedRods < rodOrder.size() && carriedRods[rodOrder.get(insertedRods)];
+        return insertedRods < rodOrder.size() && carriedRod == rodOrder.get(insertedRods);
     }
 
     /**
-     * cuenta cuantas barras tienen
+     * Devuelve la barra con Q para que el jugador la lleve de vuelta a su dispensador si
+     * se equivocó de color
+     *
+     * @param agent jugador
      */
-    private int countCarriedRods() {
-        int count = 0;
-        for (boolean rod : carriedRods) {
-            if (rod) {
-                count++;
-            }
+    @Override
+    public void drop(Agent agent) {
+        if (carriedRod != -1 && isNear(agent, dispensers[carriedRod])) {
+            emptyDispensers[carriedRod] = false;
+            dispenserDecorations[carriedRod].setImage(dispenserFullImgs[carriedRod]);
+            carriedRod = -1;
+            message = "";
         }
-        return count;
+    }
+
+    /**
+     * Busca la imagen del nucleo en los colores que corresponden
+     *
+     * @return Imagen del nucleo con las barras insertadas
+     */
+    private Image loadCoreImage() {
+        String name = "nucleo";
+        for (int i = 0; i < insertedRods; i++) {
+            name += "_" + ROD_FILES[rodOrder.get(i)];
+        }
+        String path = FRAMES + "Nucleo/Barras" + name + ".png";
+        if (getClass().getResource(path) != null) {
+            return loadImage(path);
+        }
+        return coreImgs[insertedRods];
     }
 
     /**
@@ -401,18 +437,14 @@ public class Zone3CoreRoom extends Zone {
     }
 
     /**
-     * Dibuja las barras que lleva el jugador
+     * Dibuja la barra que lleva el jugador
      *
      * @param graphics pincel
      * @param agent    jugador
      */
     private void drawCarriedRods(Graphics graphics, Agent agent) {
-        int x = agent.getX();
-        for (int i = 0; i < carriedRods.length; i++) {
-            if (carriedRods[i]) {
-                graphics.drawImage(rodImgs[i], x, agent.getY() - 28, 20, 20, null);
-                x += 16;
-            }
+        if (carriedRod != -1) {
+            graphics.drawImage(rodImgs[carriedRod], agent.getX() + 14, agent.getY() - 28, 20, 20, null);
         }
     }
 
@@ -473,13 +505,18 @@ public class Zone3CoreRoom extends Zone {
         String text = "Barras: " + insertedRods + "/3"
                 + " | Orden: " + order
                 + " | Valvulas: " + openedValves + "/3"
-                + " | Cargando: " + countCarriedRods();
+                + " | Cargando: " + (carriedRod == -1 ? "nada" : ROD_COLORS[carriedRod]);
         graphics.setColor(Color.WHITE);
         graphics.setFont(new Font("Arial", Font.BOLD, 16));
         graphics.drawString(text, 380, 40);
         if (!message.isEmpty()) {
             graphics.setColor(Color.RED);
             graphics.drawString(message, 380, 62);
+        }
+        if (isCompleted()) {
+            graphics.setColor(Color.GREEN);
+            graphics.setFont(new Font("Arial", Font.BOLD, 32));
+            graphics.drawString("REACTOR ESTABILIZADO", 460, 120);
         }
     }
 
@@ -491,6 +528,6 @@ public class Zone3CoreRoom extends Zone {
      */
     @Override
     public boolean isCompleted() {
-        return insertedRods == dispensers.length && openedValves == dispensers.length;
+        return insertedRods == dispensers.length && openedValves == valves.length;
     }
 }
