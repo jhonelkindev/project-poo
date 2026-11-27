@@ -60,6 +60,7 @@ public class Zone2EngineRoom extends Zone {
     private int holdDuration;
     private boolean holding;
     private boolean cleaning;
+    private List<Enemy> rats = new ArrayList<>();
 
     /**
      * Construye la sala de maquinas y ubica sus maquinas y decoraciones.
@@ -76,6 +77,7 @@ public class Zone2EngineRoom extends Zone {
         placeTransformersAndDucts();
         sortDecorationsByDepth();
         placeParts();
+        placeRats();
     }
 
     /**
@@ -95,7 +97,9 @@ public class Zone2EngineRoom extends Zone {
         parts.add(new Part(720, 420, Part.CABLE));
         parts.add(new Part(400, 500, Part.CABLE));
         parts.add(new Part(840, 500, Part.CABLE));
+
     }
+
 
     /**
      * Recoge con F una pieza cercana, solo si el jugador tiene las manos libres.
@@ -416,6 +420,75 @@ public class Zone2EngineRoom extends Zone {
         addDecoration(new Decoration(transformerImg, new Rectangle(1005, 330, 110, 120), transformerBase));
     }
 
+
+    /**
+     * Ubicamos las 4 ratas alrededor del mapa
+     */
+    private void placeRats() {
+        rats.add(new RadioactivedRat(640, 260));
+        rats.add(new RadioactivedRat(1040, 340));
+        rats.add(new RadioactivedRat(800, 500));
+        rats.add(new RadioactivedRat(480, 430));
+        rats.add(new RadioactivedRat(510, 300));
+    }
+
+
+    /**
+     * Obtenemos las ratas de la zona para que el hilo de enemigos las mueva
+     *
+     * @return lista de ratas
+     */
+    public List<Enemy> getRats() {
+        return rats;
+    }
+
+
+    /**
+     * Golpea con el espacio la primer rata que el jugador tenga cerca
+     *
+     * @param agent jugador
+     */
+    @Override
+    public void attack(Agent agent) {
+        for (Enemy rat : rats) {
+            if (rat.isAlive() && isNear(agent, rat.getBounds())) {
+                rat.hit();
+                break;
+            }
+        }
+    }
+
+    /**
+     * Dibuja los cadaveres de las ratas
+     *
+     * @param graphics
+     */
+    private void drawDeadRats(Graphics graphics) {
+        for (Enemy rat : rats) {
+            if (!rat.isAlive()) {
+                rat.draw(graphics);
+            }
+        }
+    }
+
+
+    /**
+     * Muestra las vidas del jugador. se ponen rojas al recibir un golpe
+     *
+     * @param graphics
+     * @param agent
+     */
+    private void drawLives(Graphics graphics, Agent agent) {
+        if (agent.isHurt()) {
+            graphics.setColor(Color.RED);
+        } else {
+            graphics.setColor(Color.WHITE);
+        }
+        graphics.setFont(new Font("Arial", Font.BOLD, 16));
+        graphics.drawString("Vidas: " + agent.getLives(), 20, 65);
+
+    }
+
     /**
      * Muestra el generador parcialmente armado mientras recibe piezas.
      */
@@ -483,8 +556,15 @@ public class Zone2EngineRoom extends Zone {
     public void draw(Graphics graphics, Agent agent) {
         drawBackgroundAndWalls(graphics);
         drawParts(graphics);
+        drawDeadRats(graphics);
         drawDecorations(graphics);
+        for (Enemy rat : rats) {
+            if (rat.isAlive()) {
+                rat.draw(graphics);
+            }
+        }
         drawZoneName(graphics);
+        drawLives(graphics, agent);
         drawObjectives(graphics, agent);
         drawMachineLabels(graphics, agent);
     }
@@ -500,8 +580,10 @@ public class Zone2EngineRoom extends Zone {
     public void drawScene(Graphics graphics, Agent agent, Runnable drawAgent) {
         drawBackgroundAndWalls(graphics);
         drawParts(graphics);
-        drawDecorationsWithAgent(graphics, agent, drawAgent);
+        drawDeadRats(graphics);
+        drawDecorationsWithAgent(graphics, agent, drawAgent, rats);
         drawZoneName(graphics);
+        drawLives(graphics, agent);
         drawObjectives(graphics, agent);
         drawMachineLabels(graphics, agent);
     }

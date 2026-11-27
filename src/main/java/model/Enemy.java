@@ -52,6 +52,13 @@ public abstract class Enemy extends Entity {
     public abstract void hit();
 
     /**
+     * Ataca al jugador cuando lo toca
+     *
+     * @param agent Jugador
+     */
+    public abstract void bite(Agent agent);
+
+    /**
      * Comprueba si el enemigo esta tocando al jugador
      *
      * @param agent Jugador
@@ -59,6 +66,15 @@ public abstract class Enemy extends Entity {
      */
     public boolean touches(Agent agent) {
         return getBounds().intersects(agent.getBounds());
+    }
+
+    /**
+     * Obtiene el area donde se dibuja el enemigo
+     *
+     * @return Rectangulo del dibujo
+     */
+    public Rectangle getSpriteBounds() {
+        return new Rectangle(getX(), getY(), width, height);
     }
 
     /**
