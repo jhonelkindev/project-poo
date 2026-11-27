@@ -23,7 +23,7 @@ public class Zone3CoreRoom extends Zone {
     private static final String ITEMS = "/frames/power-rites/";
     //colores de las barras
     private static final String[] ROD_COLORS = {"Roja", "Azul", "Amarilla"};
-    private static final String[] ROD_FILES = {"roja", " azul", "amarilla"};
+    private static final String[] ROD_FILES = {"roja", "azul", "amarilla"};
     private Rectangle core = new Rectangle(550, 350, 180, 180);
     /**
      * Dispensadores de donde se agarran las barras
@@ -97,6 +97,15 @@ public class Zone3CoreRoom extends Zone {
     private boolean wasHolding;
     private int carriedRod = -1;
 
+    /**
+     * adornos para el nivel
+     */
+    private Image pipesImg;
+    private Image condensersImg;
+    private Image barrierImg;
+    private Image platformImg;
+    private Image wasteImg;
+    private Image beaconImg;
 
     /**
      * Constructor que crea las maquinas donde tienen que estar
@@ -112,6 +121,7 @@ public class Zone3CoreRoom extends Zone {
         placedValves();
         sortDecorationsByDepth();
         chooseRodOrder();
+        placeDecorations();
 
     }
 
@@ -139,9 +149,15 @@ public class Zone3CoreRoom extends Zone {
                 loadImage(ITEMS + "item_barra_azul.png"),
                 loadImage(ITEMS + "item_barra_amarilla.png")
         };
+        pipesImg = loadImage(FRAMES + "decoraciones/decoracion_tuberias_refrigeracion.png");
+        condensersImg = loadImage(FRAMES + "decoraciones/decoracion_condensadores.png");
+        barrierImg = loadImage(FRAMES + "decoraciones/decoracion_barrera_radiologica.png");
+        platformImg = loadImage(FRAMES + "decoraciones/decoracion_plataforma_mantenimiento.png");
+        wasteImg = loadImage(FRAMES + "decoraciones/decoracion_residuos_radiactivos.png");
+        beaconImg = loadImage(FRAMES + "decoraciones/decoracion_baliza_emergencia.png");
 
-        coreAprovedImg = loadImage(FRAMES + "Nucleo/nucleo_aprobado.png");
     }
+
 
     /**
      * ubica las bases de los dispensadores y el nucleo para que existan las colisiones
@@ -178,6 +194,49 @@ public class Zone3CoreRoom extends Zone {
             valveDecorations[i] = new Decoration(valveClosedImg, valves[i], valveBase);
             addDecoration(valveDecorations[i]);
         }
+    }
+
+    /**
+     * Ubica las decoraciones en el nucleo
+     *
+     */
+    /**
+     * Ubica las decoraciones del cuarto del reactor
+     */
+    private void placeDecorations() {
+        Polygon boxBase = new Polygon(
+                new int[]{6, 32, 58, 32},
+                new int[]{46, 60, 46, 32}, 4);
+        Polygon platformBase = new Polygon(
+                new int[]{8, 48, 88, 48},
+                new int[]{42, 62, 42, 24}, 4);
+        Polygon wasteBase = new Polygon(
+                new int[]{9, 24, 39, 24},
+                new int[]{38, 46, 38, 30}, 4);
+
+        // Pared izquierda (arriba): tuberia + condensador
+        addDecoration(new Decoration(pipesImg, new Rectangle(450, 200, 64, 64), boxBase));
+        addDecoration(new Decoration(condensersImg, new Rectangle(395, 230, 64, 64), boxBase));
+
+        // Pared derecha (arriba): condensador + tuberia
+        addDecoration(new Decoration(condensersImg, new Rectangle(740, 195, 64, 64), boxBase));
+        addDecoration(new Decoration(pipesImg, new Rectangle(800, 216, 64, 64), boxBase));
+
+        // Rincon de abajo a la izquierda: deposito de residuos
+        addDecoration(new Decoration(wasteImg, new Rectangle(170, 470, 48, 48), wasteBase));
+        addDecoration(new Decoration(wasteImg, new Rectangle(215, 490, 48, 48), wasteBase));
+        addDecoration(new Decoration(wasteImg, new Rectangle(180, 505, 48, 48), wasteBase));
+        addDecoration(new Decoration(barrierImg, new Rectangle(250, 500, 64, 64), boxBase));
+        addDecoration(new Decoration(beaconImg, new Rectangle(140, 450, 32, 48)));
+
+        // Rincon de abajo a la derecha: mantenimiento
+        addDecoration(new Decoration(platformImg, new Rectangle(930, 500, 96, 64), platformBase));
+        addDecoration(new Decoration(condensersImg, new Rectangle(1030, 480, 64, 64), boxBase));
+        addDecoration(new Decoration(beaconImg, new Rectangle(900, 480, 32, 48)));
+
+        // Barreras a los lados del dispensador de abajo
+        addDecoration(new Decoration(barrierImg, new Rectangle(500, 580, 64, 64), boxBase));
+        addDecoration(new Decoration(barrierImg, new Rectangle(720, 590, 64, 64), boxBase));
     }
 
     /**
@@ -227,6 +286,11 @@ public class Zone3CoreRoom extends Zone {
         //En un dispensador lleno: mantener E 1.5 s para quitar las barra
         for (int i = 0; i < dispensers.length; i++) {
             if (!emptyDispensers[i] && isNear(agent, dispensers[i])) {
+                if (carriedRod != -1) {
+                    holding = true;
+                    message = "Solo puedes llevar una barra a la vez";
+                    return;
+                }
                 if (holdE(1500, dispensers[i])) {
                     extractRod(i);
                 }
@@ -234,15 +298,12 @@ public class Zone3CoreRoom extends Zone {
             }
         }
         //en un valvula cerrada e 2s para abrirla
-        for (int i = 0; i < dispensers.length; i++) {
-            if (!emptyDispensers[i] && isNear(agent, dispensers[i])) {
-                if (carriedRod != -1) {
-                    holding = true;
-                    message = "Solo puedes llevar una barras a la vez";
-                    return;
-                }
+        for (int i = 0; i < valves.length; i++) {
+            if (!openValves[i] && isNear(agent, valves[i])) {
+
+
                 if (holdE(2000, valves[i])) {
-                    extractRod(i);
+                    openValve(i);
                 }
                 return;
             }
@@ -337,7 +398,7 @@ public class Zone3CoreRoom extends Zone {
         for (int i = 0; i < insertedRods; i++) {
             name += "_" + ROD_FILES[rodOrder.get(i)];
         }
-        String path = FRAMES + "Nucleo/Barras" + name + ".png";
+        String path = FRAMES + "Nucleo/Barras/" + name + ".png";
         if (getClass().getResource(path) != null) {
             return loadImage(path);
         }
