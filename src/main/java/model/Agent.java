@@ -2,6 +2,8 @@ package model;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Representa al jugador.
@@ -24,6 +26,8 @@ public class Agent extends Entity {
 
     // Pieza que el jugador lleva en la mano (solo una a la vez)
     private Part carriedPart;
+    private Map<Image, Image> leadSprites = new HashMap<>();
+    private volatile long leadSuitUntil;
 
     /**
      * Crea al agente en la posicion inicial con 3 vidas y carga sus sprites.
@@ -129,7 +133,9 @@ public class Agent extends Entity {
      * @param part Pieza recogida.
      */
     public void carryPart(Part part) {
-        carriedPart = part;
+        if (!hasPart()) {
+            carriedPart = part;
+        }
     }
 
     /**
@@ -172,7 +178,64 @@ public class Agent extends Entity {
         this.y = y;
     }
 
+    /**
+     * Indica si una pastilla de yodo puede devolverle una vida al agente.
+     *
+     * @return true si tiene menos de las tres vidas iniciales.
+     */
+    public boolean needsHealing() {
+        return lives < 3;
+    }
+
+    /** Recupera una vida con yodo hasta llegar al máximo de tres. */
+    public void recoverLife() {
+        if (needsHealing()) {
+            lives++;
+        }
+    }
+
+    /** Resta una vida al recibir daño si el traje de plomo no está activo. */
+    public void takeDamage() {
+        if (lives > 0 && !isWearingLeadSuit()) {
+            lives--;
+        }
+    }
+
+    /** Activa el traje durante cinco segundos conservando la dirección del agente. */
+    public void wearLeadSuit() {
+        if (leadSprites.isEmpty()) {
+            loadLeadSprite(walkDown, "abajo");
+            loadLeadSprite(walkUp, "arriba");
+            loadLeadSprite(walkLeft, "izquierda");
+            loadLeadSprite(walkRight, "derecha");
+            loadLeadSprite(walkUpLeft, "arriba_izquierda");
+            loadLeadSprite(walkUpRight, "arriba_derecha");
+            leadSprites.put(idleSprite, leadSprites.get(walkDown));
+        }
+        leadSuitUntil = System.nanoTime() + 5_000_000_000L;
+    }
+
+    /**
+     * Asocia un sprite normal con la misma dirección usando el traje.
+     *
+     * @param normal Sprite que usa el agente al moverse en esa dirección.
+     * @param direction Nombre de la dirección en los archivos del traje.
+     */
+    private void loadLeadSprite(Image normal, String direction) {
+        String path = "/Sprites/Personaje/traje-plomo/personaje_plomo_" + direction + ".gif";
+        leadSprites.put(normal, new ImageIcon(getClass().getResource(path)).getImage());
+    }
+
+    /** @return true durante los cinco segundos que dura la protección. */
+    public boolean isWearingLeadSuit() {
+        return leadSuitUntil != 0 && System.nanoTime() - leadSuitUntil < 0;
+    }
+
+    /** @return Sprite correspondiente a la dirección y al traje actual del agente. */
     public Image getCurrentSprite() {
+        if (isWearingLeadSuit()) {
+            return leadSprites.get(currentSprite);
+        }
         return currentSprite;
     }
 

@@ -4,30 +4,32 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Pieza del generador que el jugador recoge con F y suelta con Q
+ * Repuesto que el jugador recoge con F, instala con E y suelta con Q.
  */
 public class Part extends GameObject {
     public static final String NUT = "Tuerca";
     public static final String CABLE = "Cable";
+    public static final String PIPE = "Tubo";
     private String type;
     private Image image;
     private boolean clean;
 
     /**
-     * Crea una pieza en el mapa
+     * Crea una pieza en el mapa.
      *
-     * @param x    Cordenada horizaontal en pixeles
-     * @param y    Coordenada vertical en pixeles
-     * @param type Tipo de pieza part.nut o part.cable
+     * @param x    Coordenada horizontal en píxeles.
+     * @param y    Coordenada vertical en píxeles.
+     * @param type Tipo de repuesto, NUT, CABLE o PIPE.
      */
     public Part(int x, int y, String type) {
         super(x, y, 32, 32, false);
         this.type = type;
         this.clean = false;
 
-        if (type.equals(NUT)) {
+        if (NUT.equals(type)) {
             image = new ImageIcon(getClass().getResource("/frames/power-rites/item_tuerca.png")).getImage();
-
+        } else if (PIPE.equals(type)) {
+            image = new ImageIcon(getClass().getResource("/frames/power-rites/item_repuesto_tuberia.png")).getImage();
         } else {
             image = new ImageIcon(getClass().getResource("/frames/power-rites/item_cable.png")).getImage();
         }
@@ -88,7 +90,7 @@ public class Part extends GameObject {
     /**
      * Obtiene el tipo de la pieza.
      *
-     * @return part.nut o part.cable.
+     * @return Nombre del repuesto que lleva el jugador.
      */
     public String getType() {
         return type;
