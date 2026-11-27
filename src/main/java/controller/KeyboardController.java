@@ -14,6 +14,8 @@ public class KeyboardController extends KeyAdapter {
     private boolean drop;
     private boolean pickUpHeld;
     private boolean dropHeld;
+    private boolean attack;
+    private boolean attackHeld;
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -40,6 +42,11 @@ public class KeyboardController extends KeyAdapter {
             drop = true;
             dropHeld = true;
         }
+
+        if (code == KeyEvent.VK_SPACE && !attackHeld) {
+            attack = true;
+            attackHeld = true;
+        }
     }
 
     @Override
@@ -64,6 +71,11 @@ public class KeyboardController extends KeyAdapter {
 
         if (code == KeyEvent.VK_Q) {
             dropHeld = false;
+        }
+
+
+        if (code == KeyEvent.VK_SPACE) {
+            attackHeld = false;
         }
     }
 
@@ -101,6 +113,17 @@ public class KeyboardController extends KeyAdapter {
     public boolean consumeDrop() {
         boolean pressed = drop;
         drop = false;
+        return pressed;
+    }
+
+    /**
+     * Indica si se presiono la tecla de espacio para acatar
+     *
+     * @return true en el fotograma donde se presiono
+     */
+    public boolean consumeAttack() {
+        boolean pressed = attack;
+        attack = false;
         return pressed;
     }
 }

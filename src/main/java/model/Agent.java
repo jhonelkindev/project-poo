@@ -24,10 +24,13 @@ public class Agent extends Entity {
     private Image walkUpRight;
     private Image currentSprite;
 
-    // Pieza que el jugador lleva en la mano (solo una a la vez)
+    // Pieza que el jugador lleva en la mano
     private Part carriedPart;
     private Map<Image, Image> leadSprites = new HashMap<>();
     private volatile long leadSuitUntil;
+
+    //Tiempo de gracia tras recibir daño
+    private long invulnerableUntil;
 
     /**
      * Crea al agente en la posicion inicial con 3 vidas y carga sus sprites.
@@ -253,5 +256,25 @@ public class Agent extends Entity {
 
     public int getScore() {
         return score;
+    }
+
+    /**
+     * Quita una vida al jugador, a menos que este en su tiempo de gracia
+     * despues de perder una vida no puede volver a perder una vida durante 1,5 s
+     */
+    public void loseLife() {
+        if (lives > 0 && !isHurt() && !isWearingLeadSuit()) {
+            lives--;
+            invulnerableUntil = System.currentTimeMillis() + 1500;
+        }
+    }
+
+    /**
+     * Indica si el jugador esta en su tiempo de gracia despues del golpe
+     *
+     * @return
+     */
+    public boolean isHurt() {
+        return System.currentTimeMillis() < invulnerableUntil;
     }
 }

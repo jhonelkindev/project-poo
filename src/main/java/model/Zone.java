@@ -130,13 +130,38 @@ public abstract class Zone {
      * @param drawAgent Accion que dibuja al jugador.
      */
     protected void drawDecorationsWithAgent(Graphics graphics, Agent agent, Runnable drawAgent) {
+        drawDecorationsWithAgent(graphics, agent, drawAgent, new ArrayList<>());
+    }
+
+    /**
+     * Dibuja al jugador y a los enemigos entre las piezas ordenadas del fondo hacia el frente.
+     *
+     * @param graphics  Contexto grafico de Swing.
+     * @param agent     Jugador activo.
+     * @param drawAgent Accion que dibuja al jugador.
+     * @param enemies   Enemigos de la zona.
+     */
+    protected void drawDecorationsWithAgent(Graphics graphics, Agent agent, Runnable drawAgent, List<Enemy> enemies) {
         Rectangle sprite = new Rectangle(
                 agent.getX(), agent.getY(), agent.getWidth(), agent.getHeight());
 
         Rectangle feet = agent.getBounds();
         boolean agentDrawn = false;
 
+        boolean[] enemyDrawn = new boolean[enemies.size()];
+        for (int i = 0; i < enemies.size(); i++) {
+            enemyDrawn[i] = !enemies.get(i).isAlive();
+        }
+
         for (Decoration decoration : decorations) {
+            for (int i = 0; i < enemies.size(); i++) {
+                Enemy enemy = enemies.get(i);
+                if (!enemyDrawn[i] && decoration.isInFrontOf(enemy.getSpriteBounds(), enemy.getBounds())) {
+                    enemy.draw(graphics);
+                    enemyDrawn[i] = true;
+                }
+            }
+
             if (!agentDrawn && decoration.isInFrontOf(sprite, feet)) {
                 drawAgent.run();
                 agentDrawn = true;
@@ -145,8 +170,22 @@ public abstract class Zone {
             decoration.draw(graphics);
         }
 
+        for (int i = 0; i < enemies.size(); i++) {
+            Enemy enemy = enemies.get(i);
+            if (!enemyDrawn[i] && enemy.getBounds().getMaxY() < feet.getMaxY()) {
+                enemy.draw(graphics);
+                enemyDrawn[i] = true;
+            }
+        }
+
         if (!agentDrawn) {
             drawAgent.run();
+        }
+
+        for (int i = 0; i < enemies.size(); i++) {
+            if (!enemyDrawn[i]) {
+                enemies.get(i).draw(graphics);
+            }
         }
     }
 
@@ -215,5 +254,13 @@ public abstract class Zone {
      * @param agent Jugador activo.
      */
     public void action(Agent agent) {
+    }
+
+    /**
+     * Se ejecuta cuando el jugador presiona el espacio
+     *
+     * @param agent jugador
+     */
+    public void attack(Agent agent) {
     }
 }
