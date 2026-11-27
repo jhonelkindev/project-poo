@@ -60,13 +60,23 @@ public class GameLoopThread extends Thread {
                 currentZone.action(agent);
             }
 
+
+            if (keyboard.consumeAttack()) {
+                currentZone.attack(agent);
+            }
+
             agent.update();
             currentZone.update(agent);
 
 
             if (currentZone instanceof Zone1BoilerRoom && keyboard.isNextLevel()) {
-                gamePanel.setCurrentZone(new Zone2EngineRoom());
+                Zone2EngineRoom zone2 = new Zone2EngineRoom();
+                gamePanel.setCurrentZone(zone2);
                 agent.setPosition(200, 370);
+
+                // Las ratas se mueven en su propio hilo
+                EnemyThread enemyThread = new EnemyThread(zone2.getRats(), agent, zone2);
+                enemyThread.start();
             }
         }
     }

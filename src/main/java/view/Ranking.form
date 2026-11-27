@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="view.Ranking">
+  <grid id="27dc6" binding="mainPanel" custom-create="true" layout-manager="GridLayoutManager" row-count="3" column-count="2" hgap="0" vgap="0">
+    <margin top="0" left="0" bottom="0" right="0" />
+    <constraints>
+      <xy x="0" y="0" width="1280" height="720" />
+    </constraints>
+    <properties />
+    <border type="none" />
+    <children>
+      <component id="a0010" class="javax.swing.JLabel" binding="topTitleLabel">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="TOP 3" />
+        </properties>
+      </component>
+      <component id="a0011" class="javax.swing.JLabel" binding="historyTitleLabel">
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="TODOS LOS JUGADORES" />
+        </properties>
+      </component>
+      <scrollpane id="b0010" binding="topScrollPane">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties />
+        <border type="none" />
+        <children>
+          <component id="c0010" class="javax.swing.JTable" binding="topTable">
+            <constraints />
+            <properties />
+          </component>
+        </children>
+      </scrollpane>
+      <scrollpane id="b0011" binding="historyScrollPane">
+        <constraints>
+          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties />
+        <border type="none" />
+        <children>
+          <component id="c0011" class="javax.swing.JTable" binding="historyTable">
+            <constraints />
+            <properties />
+          </component>
+        </children>
+      </scrollpane>
+      <component id="d0001" class="javax.swing.JButton" binding="backButton">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="VOLVER" />
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>
