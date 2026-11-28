@@ -87,7 +87,8 @@ public class GameLoopThread extends Thread {
                 currentZone.action(agent);
             }
 
-            if (keyboard.consumeAttack()) {
+            if (keyboard.consumeAttack() && !agent.isAttacking()) {
+                agent.startAttack();
                 currentZone.attack(agent);
             }
 

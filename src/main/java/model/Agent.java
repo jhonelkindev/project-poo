@@ -24,6 +24,16 @@ public class Agent extends Entity {
     private Image walkUpRight;
     private Image currentSprite;
 
+    // Sprites de ataque
+    private Image attackDown;
+    private Image attackUp;
+    private Image attackLeft;
+    private Image attackRight;
+    private Image attackUpLeft;
+    private Image attackUpRight;
+    private Image lastDirection;
+    private long attackEndTime;
+
     // Pieza que el jugador lleva en la mano
     private Part carriedPart;
     private Map<Image, Image> leadSprites = new HashMap<>();
@@ -53,7 +63,15 @@ public class Agent extends Entity {
         this.walkUpLeft = new ImageIcon(getClass().getResource("/Sprites/Personaje/preview_arriba_izquierda.gif")).getImage();
         this.walkUpRight = new ImageIcon(getClass().getResource("/Sprites/Personaje/preview_arriba_derecha_nuevo.gif")).getImage();
 
+        this.attackDown = new ImageIcon(getClass().getResource("/Sprites/Personaje/ataque/ataque_abajo.gif")).getImage();
+        this.attackUp = new ImageIcon(getClass().getResource("/Sprites/Personaje/ataque/ataque_arriba.gif")).getImage();
+        this.attackLeft = new ImageIcon(getClass().getResource("/Sprites/Personaje/ataque/ataque_izquierda.gif")).getImage();
+        this.attackRight = new ImageIcon(getClass().getResource("/Sprites/Personaje/ataque/ataque_derecha.gif")).getImage();
+        this.attackUpLeft = new ImageIcon(getClass().getResource("/Sprites/Personaje/ataque/ataque_arriba_izquierda.gif")).getImage();
+        this.attackUpRight = new ImageIcon(getClass().getResource("/Sprites/Personaje/ataque/ataque_arriba_derecha.gif")).getImage();
+
         this.currentSprite = this.idleSprite;
+        this.lastDirection = this.walkDown;
     }
 
     /**
@@ -65,6 +83,10 @@ public class Agent extends Entity {
      * @param zone Zona actual donde se mueve el jugador.
      */
     public void move(int dx, int dy, Zone zone) {
+        if (isAttacking()) {
+            return;
+        }
+
         if (dx == 0 && dy == 0) {
             currentSprite = idleSprite;
             return;
@@ -111,6 +133,8 @@ public class Agent extends Entity {
         } else if (isoX > 0.1) {
             currentSprite = walkRight;
         }
+
+        lastDirection = currentSprite;
     }
 
     @Override
@@ -236,10 +260,51 @@ public class Agent extends Entity {
 
     /** @return Sprite correspondiente a la dirección y al traje actual del agente. */
     public Image getCurrentSprite() {
+        if (isAttacking()) {
+            return getAttackSprite();
+        }
         if (isWearingLeadSuit()) {
             return leadSprites.get(currentSprite);
         }
         return currentSprite;
+    }
+
+    /**
+     * Empieza la animacion de ataque hacia la ultima direccion en la que camino.
+     */
+    public void startAttack() {
+        attackEndTime = System.currentTimeMillis() + 1000;
+        getAttackSprite().flush();
+    }
+
+    /**
+     * Indica si el jugador esta atacando.
+     *
+     * @return true mientras dura la animacion de ataque.
+     */
+    public boolean isAttacking() {
+        return System.currentTimeMillis() < attackEndTime;
+    }
+
+    /**
+     * Busca el sprite de ataque segun la ultima direccion en la que camino.
+     *
+     * @return Sprite de ataque.
+     */
+    private Image getAttackSprite() {
+        if (lastDirection == walkUp) {
+            return attackUp;
+        } else if (lastDirection == walkLeft) {
+            return attackLeft;
+        } else if (lastDirection == walkRight) {
+            return attackRight;
+        } else if (lastDirection == walkUpLeft) {
+            return attackUpLeft;
+        } else if (lastDirection == walkUpRight) {
+            return attackUpRight;
+        } else {
+            return attackDown;
+        }
     }
 
     public String getPlayerName() {
