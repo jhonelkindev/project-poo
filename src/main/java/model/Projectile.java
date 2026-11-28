@@ -25,7 +25,7 @@ public class Projectile extends Entity {
      */
 
     public Projectile(double x, double y, Agent target) {
-        super(x, y, 24, 24, 4);
+        super(x, y, 24, 24, 2);
         double dx = target.getX() + target.getWidth() / 2 - x;
         double dy = target.getY() + target.getHeight() / 2 - y;
         double distance = Math.sqrt(dx * dx + dy * dy);
