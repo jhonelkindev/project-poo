@@ -2,8 +2,10 @@ package view;
 
 import controller.GameLoopThread;
 import controller.KeyboardController;
+import controller.StoryController;
 import model.Agent;
 import model.Part;
+import model.StoryData;
 import model.Zone;
 import model.Zone1BoilerRoom;
 
@@ -41,6 +43,22 @@ public class MainFrame extends JFrame {
 
         GameLoopThread gameLoop = new GameLoopThread(agent, keyboard, gamePanel, this);
         gameLoop.start();
+    }
+
+    /**
+     * Muestra la pantalla de Game Over con la imagen de la explosion
+     */
+    public void showGameOver() {
+        StoryPanel storyPanel = new StoryPanel();
+        StoryController story = new StoryController(storyPanel, StoryData.getGameOver());
+        storyPanel.addKeyListener(story);
+
+        setContentPane(storyPanel);
+        revalidate();
+        repaint();
+
+        storyPanel.requestFocusInWindow();
+        story.start();
     }
 
     /**

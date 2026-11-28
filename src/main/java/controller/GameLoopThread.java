@@ -31,7 +31,12 @@ public class GameLoopThread extends Thread {
 
             while (!isInterrupted()) {
                 update();
-                gamePanel.repaint();
+
+                if (agent.getLives() <= 0) {
+                    SwingUtilities.invokeLater(() -> mainFrame.showGameOver());
+                    break;
+                }
+
                 gamePanel.repaint();
                 SwingUtilities.invokeLater(() -> mainFrame.updateHud(agent, gamePanel.getCurrentZone()));
                 Thread.sleep(16);
