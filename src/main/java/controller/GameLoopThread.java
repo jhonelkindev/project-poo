@@ -5,18 +5,24 @@ import model.Zone;
 import model.Zone1BoilerRoom;
 import model.Zone2EngineRoom;
 import view.GamePanel;
+import view.MainFrame;
+
+import javax.swing.*;
 
 public class GameLoopThread extends Thread {
+    private final MainFrame mainFrame;
     private EnemyThread enemyThread;
     private Agent agent;
     private KeyboardController keyboard;
     private GamePanel gamePanel;
 
-    public GameLoopThread(Agent agent, KeyboardController keyboard, GamePanel gamePanel) {
+    public GameLoopThread(Agent agent, KeyboardController keyboard, GamePanel gamePanel, MainFrame mainFrame) {
         this.agent = agent;
         this.keyboard = keyboard;
         this.gamePanel = gamePanel;
+        this.mainFrame = mainFrame;
     }
+
 
     @Override
     public void run() {
@@ -26,6 +32,8 @@ public class GameLoopThread extends Thread {
             while (!isInterrupted()) {
                 update();
                 gamePanel.repaint();
+                gamePanel.repaint();
+                SwingUtilities.invokeLater(() -> mainFrame.updateHud(agent, gamePanel.getCurrentZone()));
                 Thread.sleep(16);
             }
         } catch (InterruptedException e) {

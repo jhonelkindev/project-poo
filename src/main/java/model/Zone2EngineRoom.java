@@ -180,26 +180,6 @@ public class Zone2EngineRoom extends Zone {
         }
     }
 
-    private void drawObjectives(Graphics graphics, Agent agent) {
-        String carrying = "nada";
-        Part part = agent.getCarriedPart();
-
-        if (part != null) {
-            if (part.isClean()) {
-                carrying = part.getType() + " (pieza limpia)";
-            } else {
-                carrying = part.getType() + " (pieza sucia)";
-            }
-        }
-
-        String text = "Tuercas: " + installedNuts + "/6"
-                + " | Cables: " + installedCables + "/4"
-                + " | Llevas: " + carrying;
-
-        graphics.setColor(Color.WHITE);
-        graphics.setFont(new Font("Arial", Font.BOLD, 16));
-        graphics.drawString(text, 640, 40);
-    }
 
     private void drawMachineLabels(Graphics graphics, Agent agent) {
         Part part = agent.getCarriedPart();
@@ -336,16 +316,6 @@ public class Zone2EngineRoom extends Zone {
         }
     }
 
-    private void drawLives(Graphics graphics, Agent agent) {
-        if (agent.isHurt()) {
-            graphics.setColor(Color.RED);
-        } else {
-            graphics.setColor(Color.WHITE);
-        }
-
-        graphics.setFont(new Font("Arial", Font.BOLD, 16));
-        graphics.drawString("Vidas: " + agent.getLives(), 20, 65);
-    }
 
     public void showGeneratorAssembly() {
         generator.setImage(generatorAssemblyImg);
@@ -395,10 +365,6 @@ public class Zone2EngineRoom extends Zone {
                 rat.draw(graphics);
             }
         }
-
-        drawZoneName(graphics);
-        drawLives(graphics, agent);
-        drawObjectives(graphics, agent);
         drawMachineLabels(graphics, agent);
     }
 
@@ -408,9 +374,6 @@ public class Zone2EngineRoom extends Zone {
         drawParts(graphics);
         drawDeadRats(graphics);
         drawDecorationsWithAgent(graphics, agent, drawAgent, enemies);
-        drawZoneName(graphics);
-        drawLives(graphics, agent);
-        drawObjectives(graphics, agent);
         drawMachineLabels(graphics, agent);
     }
 
@@ -441,14 +404,14 @@ public class Zone2EngineRoom extends Zone {
         }
     }
 
-    private void drawZoneName(Graphics graphics) {
-        graphics.setColor(Color.WHITE);
-        graphics.setFont(new Font("Arial", Font.BOLD, 16));
-        graphics.drawString("ZONA 2 - Sala de Maquinas", 20, 40);
-    }
 
     @Override
     public boolean isCompleted() {
         return false;
+    }
+
+    @Override
+    public String getObjectiveText() {
+        return "Tuercas: " + installedNuts + "/6   Cables: " + installedCables + "/4";
     }
 }

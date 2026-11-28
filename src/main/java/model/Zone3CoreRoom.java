@@ -430,7 +430,7 @@ public class Zone3CoreRoom extends Zone {
      * @param area  Area de la maquina
      * @return true si el jugador esta cerca
      */
-    private boolean isNear(Agent agent, Rectangle area) {
+    public boolean isNear(Agent agent, Rectangle area) {
         Rectangle playerArea = new Rectangle(agent.getX() - 20, agent.getY() - 20,
                 agent.getWidth() + 40, agent.getHeight() + 40);
         return playerArea.intersects(area);

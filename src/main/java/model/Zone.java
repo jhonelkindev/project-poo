@@ -170,4 +170,13 @@ public abstract class Zone {
             }
         }
     }
+
+    /**
+     * Obtiene el texto con el avance de los objetivos de la zona
+     *
+     * @return texto de los objetivos
+     */
+    public String getObjectiveText() {
+        return "";
+    }
 }
