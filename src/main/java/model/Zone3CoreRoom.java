@@ -74,7 +74,19 @@ public class Zone3CoreRoom extends Zone {
     private Decoration[] valveDecorations = new Decoration[valves.length];
     private boolean[] emptyDispensers = new boolean[dispensers.length];
     private boolean[] openValves = new boolean[valves.length];
-
+    /**
+     * DrUranio
+     */
+    private DrUranio doctor = new DrUranio();
+    private List<Enemy> enemies = new ArrayList<>();
+    private Rectangle[] consoles = {
+            new Rectangle(290, 400, 64, 64),
+            new Rectangle(980, 390, 64, 64),
+    };
+    private boolean[] usedConsoles = new boolean[consoles.length];
+    private Decoration[] consoleDecorations = new Decoration[consoles.length];
+    private Image consoleOnImg;
+    private Image consoleOffImg;
     /**
      * Orden
      */
@@ -121,12 +133,16 @@ public class Zone3CoreRoom extends Zone {
         placedValves();
         sortDecorationsByDepth();
         chooseRodOrder();
+        enemies.add(doctor);
         placeDecorations();
+        placeConsoles();
 
     }
 
     private void loadImages() {
         backgroundImg = loadImage("/mapas_niveles/nivel3_fondo.png");
+        consoleOnImg = loadImage(FRAMES + "consola/consola_prendida.png");
+        consoleOffImg = loadImage(FRAMES + "consola/consola_apagada.png");
         coreImgs = new Image[]{
                 loadImage(FRAMES + "Nucleo/nucleo_vacio.png"),
                 loadImage(FRAMES + "Nucleo/nucleo_barra1.png"),
@@ -196,6 +212,28 @@ public class Zone3CoreRoom extends Zone {
         }
     }
 
+    /**
+     * Ubica las consolas
+     */
+    private void placeConsoles() {
+        Polygon consolesBase = new Polygon(
+                new int[]{6, 32, 58, 32},
+                new int[]{46, 60, 46, 32}, 4
+        );
+        for (int i = 0; i < consoles.length; i++) {
+            consoleDecorations[i] = new Decoration(consoleOnImg, consoles[i], consolesBase);
+            addDecoration(consoleDecorations[i]);
+        }
+    }
+
+    /**
+     * Obtiene al DrUranio para que los hilos los muevan
+     *
+     * @return lista con el DrUranio
+     */
+    public List<Enemy> getEnemies() {
+        return enemies;
+    }
     /**
      * Ubica las decoraciones en el nucleo
      *
@@ -297,6 +335,14 @@ public class Zone3CoreRoom extends Zone {
                 return;
             }
         }
+        for (int i = 0; i < consoles.length; i++) {
+            if (!usedConsoles[i] && isNear(agent, consoles[i])) {
+                if (holdE(1000, consoles[i])) {
+                    useConsole(i);
+                }
+                return;
+            }
+        }
         //en un valvula cerrada e 2s para abrirla
         for (int i = 0; i < valves.length; i++) {
             if (!openValves[i] && isNear(agent, valves[i])) {
@@ -309,15 +355,28 @@ public class Zone3CoreRoom extends Zone {
             }
 
         }
-        /**
-         * Saca la barra y la agrega a lo que lleva el jugador
-         * @param index Posicion del dispensador
-         *
-         */
 
 
     }
 
+    /**
+     * Usa una consola, esta aturde al DrUranio 5 segundos y se apaga
+     *
+     * @param index posicion de la consola
+     */
+    private void useConsole(int index) {
+        usedConsoles[index] = true;
+        consoleDecorations[index].setImage(consoleOffImg);
+        doctor.stun(5000);
+        holdStart = 0;
+    }
+
+    /**
+     * Saca la barra y la agrega a lo que lleva el jugador
+     *
+     * @param index Posicion del dispensador
+     *
+     */
     private void extractRod(int index) {
         emptyDispensers[index] = true;
         dispenserDecorations[index].setImage(dispenserEmptyImg);
@@ -334,6 +393,9 @@ public class Zone3CoreRoom extends Zone {
     private void finishInsertion() {
         insertedRods++;
         carriedRod = -1;
+        if (insertedRods == 2) {
+            doctor.enrage();
+        }
         coreDecoration.setImage(loadCoreImage());
         locking = false;
         message = "";
@@ -437,12 +499,6 @@ public class Zone3CoreRoom extends Zone {
 
     }
 
-    private void levelCompleted() {
-        if (isCompleted()) {
-            coreDecoration.setImage(coreAprovedImg);
-            message = "";
-        }
-    }
 
     /**
      * Comprueba que ambos pies queden dentro de las paredes de la sala.
@@ -486,6 +542,8 @@ public class Zone3CoreRoom extends Zone {
         drawProgress(graphics);
         drawZoneName(graphics);
         drawObjectives(graphics);
+        doctor.draw(graphics);
+        drawLives(graphics, agent);
     }
 
     /**
@@ -536,6 +594,22 @@ public class Zone3CoreRoom extends Zone {
             graphics.fillRect(barX, barY, (int) (100 * progress), 8);
 
         }
+    }
+
+    /**
+     * Muestra las vidas del usuario
+     *
+     * @param graphics pincel
+     * @param agent    jugador
+     */
+    private void drawLives(Graphics graphics, Agent agent) {
+        if (agent.isHurt()) {
+            graphics.setColor(Color.RED);
+        } else {
+            graphics.setColor(Color.WHITE);
+        }
+        graphics.setFont(new Font("Arial", Font.BOLD, 16));
+        graphics.drawString("Vidas: " + agent.getLives(), 20, 65);
     }
 
     /**
