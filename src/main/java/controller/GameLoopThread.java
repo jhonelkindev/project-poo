@@ -7,7 +7,7 @@ import model.Zone2EngineRoom;
 import view.GamePanel;
 
 public class GameLoopThread extends Thread {
-    private boolean running;
+    private EnemyThread enemyThread;
     private Agent agent;
     private KeyboardController keyboard;
     private GamePanel gamePanel;
@@ -16,22 +16,36 @@ public class GameLoopThread extends Thread {
         this.agent = agent;
         this.keyboard = keyboard;
         this.gamePanel = gamePanel;
-        this.running = false;
     }
 
     @Override
     public void run() {
-        running = true;
+        try {
+            startEnemies(gamePanel.getCurrentZone());
 
-        while (running) {
-            update();
-            gamePanel.repaint();
-
-            try {
+            while (!isInterrupted()) {
+                update();
+                gamePanel.repaint();
                 Thread.sleep(16);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
+        } catch (InterruptedException e) {
+            interrupt();
+        } finally {
+            stopEnemies();
+        }
+    }
+
+    private void startEnemies(Zone zone) {
+        if (zone != null && !zone.getEnemies().isEmpty()) {
+            enemyThread = new EnemyThread(zone.getEnemies(), agent, zone);
+            enemyThread.start();
+        }
+    }
+
+    private void stopEnemies() {
+        if (enemyThread != null) {
+            enemyThread.stopEnemies();
+            enemyThread = null;
         }
     }
 
@@ -45,7 +59,12 @@ public class GameLoopThread extends Thread {
         if (keyboard.isRight()) dx += 1;
 
         Zone currentZone = gamePanel.getCurrentZone();
-        if (currentZone != null) {
+
+        if (currentZone == null) {
+            return;
+        }
+
+        synchronized (currentZone) {
             agent.move(dx, dy, currentZone);
 
             if (keyboard.consumePickUp()) {
@@ -60,7 +79,6 @@ public class GameLoopThread extends Thread {
                 currentZone.action(agent);
             }
 
-
             if (keyboard.consumeAttack()) {
                 currentZone.attack(agent);
             }
@@ -68,20 +86,19 @@ public class GameLoopThread extends Thread {
             agent.update();
             currentZone.update(agent);
 
-
             if (currentZone instanceof Zone1BoilerRoom && keyboard.isNextLevel()) {
-                Zone2EngineRoom zone2 = new Zone2EngineRoom();
-                gamePanel.setCurrentZone(zone2);
-                agent.setPosition(200, 370);
+                stopEnemies();
 
-                // Las ratas se mueven en su propio hilo
-                EnemyThread enemyThread = new EnemyThread(zone2.getRats(), agent, zone2);
-                enemyThread.start();
+                Zone2EngineRoom zone2 = new Zone2EngineRoom();
+                agent.setPosition(200, 370);
+                gamePanel.setCurrentZone(zone2);
+
+                startEnemies(zone2);
             }
         }
     }
 
     public void stopLoop() {
-        running = false;
+        interrupt();
     }
 }
