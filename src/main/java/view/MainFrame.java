@@ -2,10 +2,11 @@ package view;
 
 import controller.GameLoopThread;
 import controller.KeyboardController;
+import controller.TimeController;
 import model.Agent;
 import model.Part;
 import model.Zone;
-import model.Zone1BoilerRoom;
+import model.Zone3CoreRoom;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +19,8 @@ public class MainFrame extends JFrame {
     private JLabel livesLabel;
     private JLabel objectivesLabel;
     private JLabel carryingLabel;
+    private JLabel timeLabel;
+    private TimeController timer;
 
 
     public MainFrame() {
@@ -25,8 +28,8 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
-        Agent agent = new Agent(620, 460);
-        Zone initialZone = new Zone1BoilerRoom();
+        Agent agent = new Agent(420, 400);
+        Zone initialZone = new Zone3CoreRoom();
 
         KeyboardController keyboard = new KeyboardController();
         GamePanel gamePanel = new GamePanel(agent, initialZone);
@@ -35,7 +38,8 @@ public class MainFrame extends JFrame {
         gameContainer.add(gamePanel, BorderLayout.CENTER);
 
         setContentPane(panel1);
-
+        timer = new TimeController(60);
+        timer.start();
         pack();
         setLocationRelativeTo(null);
 
@@ -68,5 +72,23 @@ public class MainFrame extends JFrame {
         } else {
             carryingLabel.setText("Llevas: " + part.getType() + " (sucia)");
         }
+        timeLabel.setText("Cronometro: " + timer.getCronTime() + "");
+        timeLabel.setForeground(timeColor());
+    }
+
+    /**
+     * Va poniendo las letras de distinto color dependiendo
+     * de cuanto tiempo le falte
+     *
+     * @return verde, naranja o rojo
+     */
+    private Color timeColor() {
+        double fraction = (double) timer.getSecondsLeft() / timer.getInitialSeconds();
+        if (fraction > 0.5) {
+            return new Color(20, 74, 20);
+        } else if (fraction > 0.2) {
+            return new Color(220, 127, 60);
+        }
+        return new Color(220, 60, 60);
     }
 }
